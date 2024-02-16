@@ -19,16 +19,62 @@
 *                                                                             *
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
-#ifndef MESHSTEPLOADER_CONFIG_H
-#define MESHSTEPLOADER_CONFIG_H
+#include <MeshSTEPLoader/init.h>
 
-#include <sofa/config.h>
+#include <sofa/core/ObjectFactory.h>
 
-#ifdef SOFA_BUILD_MeshSTEPLoader
-#  define SOFA_TARGET MeshSTEPLoader
-#  define SOFA_MeshSTEPLoader_API SOFA_EXPORT_DYNAMIC_LIBRARY
-#else
-#  define SOFA_MeshSTEPLoader_API  SOFA_IMPORT_DYNAMIC_LIBRARY
-#endif
+namespace meshsteploader
+{
+//Here are just several convenient functions to help user to know what contains the plugin
 
-#endif
+extern "C" {
+    SOFA_MESHSTEPLOADER_API void initExternalModule();
+    SOFA_MESHSTEPLOADER_API const char* getModuleName();
+    SOFA_MESHSTEPLOADER_API const char* getModuleLicense();
+    SOFA_MESHSTEPLOADER_API const char* getModuleVersion();
+    SOFA_MESHSTEPLOADER_API const char* getModuleDescription();
+    SOFA_MESHSTEPLOADER_API const char* getModuleComponentList();
+}
+
+void init()
+{
+    static bool first = true;
+    if (first)
+    {
+        first = false;
+    }
+}
+
+void initExternalModule()
+{
+    init();
+}
+
+const char* getModuleLicense()
+{
+    return "LGPL";
+}
+
+const char* getModuleName()
+{
+    return MODULE_NAME;
+}
+
+const char* getModuleVersion()
+{
+    return MODULE_VERSION;
+}
+
+const char* getModuleDescription()
+{
+    return "Load STEP files into SOFA Framework";
+}
+
+const char* getModuleComponentList()
+{
+    /// string containing the names of the classes provided by the plugin
+    static std::string classes = sofa::core::ObjectFactory::getInstance()->listClassesFromTarget(sofa_tostring(SOFA_TARGET));
+    return classes.c_str();
+}
+
+} // namespace meshsteploader

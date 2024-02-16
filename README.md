@@ -1,26 +1,22 @@
+## MeshSTEPLoader
 
-************************************
-*     PluginMeshSTEPLoader.txt     *
-************************************
-
-
-AUTHOR :
+#### AUTHOR :
  - Jean-Remy Chardonnet
 
 
-LICENCE :
+#### LICENCE :
  - None
 
 
-EXAMPLE :
+#### EXAMPLE :
  - MeshSTEPLoader.scn (located in STEPLoader/example)
 
 
-OTHER COMMENTS :
+#### OTHER COMMENTS :
  - Needs OpenCascade to run (http://www.opencascade.org/)
 
 
-PARAMETERS :
+#### PARAMETERS :
  - deflection : Deflection parameter for tesselation
  - keepDuplicate : Boolean for keeping duplicated vertices (as vertices are read per face, there are many duplicated vertices)
 		   If true, keep the original list of vertices, else remove all duplicated vertices

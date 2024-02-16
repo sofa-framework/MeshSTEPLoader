@@ -1,54 +1,53 @@
 cmake_minimum_required(VERSION 3.12)
-project(MeshSTEPLoader)
+project(MeshSTEPLoader LANGUAGES CXX VERSION 0.5)
 
+set(MESHSTEPLOADERSRC_DIR src/MeshSTEPLoader)
 
 set(HEADER_FILES
-    MeshSTEPLoader.h
-    ParametricTriangleTopologyContainer.h
-    STEPShapeMapping.h
-    SingleComponent.h
-    SingleComponent.inl
-    config.h
+    ${MESHSTEPLOADERSRC_DIR}/config.h.in
+    ${MESHSTEPLOADERSRC_DIR}/init.h
+    ${MESHSTEPLOADERSRC_DIR}/MeshSTEPLoader.h
+    ${MESHSTEPLOADERSRC_DIR}/ParametricTriangleTopologyContainer.h
+    ${MESHSTEPLOADERSRC_DIR}/STEPShapeMapping.h
+    ${MESHSTEPLOADERSRC_DIR}/SingleComponent.h
+    ${MESHSTEPLOADERSRC_DIR}/SingleComponent.inl
 )
 
 set(SOURCE_FILES
-    MeshSTEPLoader.cpp
-    ParametricTriangleTopologyContainer.cpp
-    STEPShapeMapping.cpp
-    SingleComponent.cpp
-    initMeshSTEPLoader.cpp
+    ${MESHSTEPLOADERSRC_DIR}/init.cpp
+    ${MESHSTEPLOADERSRC_DIR}/MeshSTEPLoader.cpp
+    ${MESHSTEPLOADERSRC_DIR}/ParametricTriangleTopologyContainer.cpp
+    ${MESHSTEPLOADERSRC_DIR}/STEPShapeMapping.cpp
+    ${MESHSTEPLOADERSRC_DIR}/SingleComponent.cpp
 )
-
-set(README_FILES PluginMeshSTEPLoader.txt)
 
 find_package(Sofa.Component.Topology.Container.Constant REQUIRED)
 find_package(Sofa.Component.Topology.Container.Dynamic REQUIRED)
 
-list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR})
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 find_package(OpenCascade REQUIRED)
 
-add_library(${PROJECT_NAME} SHARED ${HEADER_FILES} ${SOURCE_FILES} ${README_FILES})
-target_compile_definitions(${PROJECT_NAME} PRIVATE "-DSOFA_BUILD_${PROJECT_NAME}")
-target_link_libraries(${PROJECT_NAME} Sofa.Component.Topology.Container.Constant Sofa.Component.Topology.Container.Dynamic)
-target_link_libraries(${PROJECT_NAME} ${OPENCASCADE_LIBRARIES})
-include_directories(${OPENCASCADE_INCLUDE_DIR})
-include_directories("${CMAKE_CURRENT_SOURCE_DIR}/..")
+add_library(${PROJECT_NAME} SHARED ${HEADER_FILES} ${SOURCE_FILES})
+target_link_libraries(${PROJECT_NAME} PUBLIC Sofa.Component.Topology.Container.Constant Sofa.Component.Topology.Container.Dynamic)
+target_link_libraries(${PROJECT_NAME} PUBLIC ${OPENCASCADE_LIBRARIES})
+target_include_directories(${PROJECT_NAME} PUBLIC ${OPENCASCADE_INCLUDE_DIR})
 
 if(WIN32)
     # required for OpenCASCADE
-    set(MESHSTEPLOADER_COMPILER_FLAGS "${MESHSTEPLOADER_COMPILER_FLAGS} -DWNT")
+    target_compile_options(${PROJECT_NAME} PRIVATE "-DWNT")
 endif()
 
+sofa_create_package_with_targets(
+    PACKAGE_NAME ${PROJECT_NAME}
+    PACKAGE_VERSION ${PROJECT_VERSION}
+    TARGETS ${PROJECT_NAME} AUTO_SET_TARGET_PROPERTIES
+    INCLUDE_SOURCE_DIR "src"
+    INCLUDE_INSTALL_DIR ${PROJECT_NAME}
+    EXAMPLE_INSTALL_DIR "example"
+    RELOCATABLE "plugins"
+    )
 
-install(TARGETS ${PROJECT_NAME}
-    COMPONENT MeshSTEPLoader_libraries
-    EXPORT MeshSTEPLoaderTargets
-    RUNTIME DESTINATION bin
-    LIBRARY DESTINATION lib
-    ARCHIVE DESTINATION lib)
-
-install(DIRECTORY example/ DESTINATION share/sofa/plugins/${PROJECT_NAME})
-
+install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/cmake/FindOpenCascade.cmake DESTINATION lib/cmake)
 if(WIN32)
     # Copy OpenCascade DLLs
     file(COPY ${OPENCASCADE_DLLS} DESTINATION bin)
